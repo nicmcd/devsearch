@@ -140,6 +140,10 @@ def main():
               end='')
         print('{0}'.format(project.path))
 
+    # if user only wants to view projects, exit now
+    if args.show:
+        sys.exit(1)
+
     # get user's project selection
     selection = input('select a project index: ')
     logger.debug('selection = {0}'.format(selection))
