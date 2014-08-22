@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+# Python 3 compatibility                                                                                                                                                                         
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+import argparse
+import re
+import sys
+
+def main(args):
+    print(args)
+
+
+if __name__ == '__main__':
+    parser = argparge.ArgumentPArser(prog='dev', description='Go to your development project')
+    parser.add_argument('-l', '--list', action='store_true',
+                        help='Show project(s) but don\'t change directory')
+    parser.add_argument('-r', '--regex', action='store_true',
+                        help='Allow regular expression as input')
+    parser.add_argument('project', default='',
+                        help='Project search text')
+    args = parser.parse_args()
+    sys.exit(main(args))
+
+

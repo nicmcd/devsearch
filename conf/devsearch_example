@@ -1,0 +1,3 @@
+[devsearch]
+root = ~/dev:/tmp
+vcs = git:svn
