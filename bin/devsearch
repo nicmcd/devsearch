@@ -218,7 +218,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='devsearch', description=desc)
     parser.add_argument('-s', '--show', action='store_true',
                         help='show project(s) but don\'t change directory')
-    parser.add_argument('-c', '--conf', default='~/.devsearch',
+    parser.add_argument('-c', '--conf', default='~/.devconf',
                         type=check_conf_file,
                         help='configuration file to use')
     parser.add_argument('-d', '--debug', action='store_true',
