@@ -5,4 +5,3 @@ make install.sh
      should install devsearch into path
      should install dev.sh into path
      should inform user how to create a .devconf
-catch Ctrl+c so user doesn't see Python call stack

@@ -42,6 +42,10 @@ class Project(object):
 
 
 def main():
+    # if user wants the last one, exit now
+    if args.last:
+        sys.exit(0)
+
     # parse the configuration file
     config = ConfigParser.RawConfigParser()
     config.read(args.conf)
@@ -222,6 +226,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='devsearch', description=desc)
     parser.add_argument('-s', '--show', action='store_true',
                         help='show project(s) but don\'t change directory')
+    parser.add_argument('-l', '--last', action='store_true',
+                        help='loads the last project used')
     parser.add_argument('-c', '--conf', default='~/.devconf',
                         type=check_conf_file,
                         help='configuration file to use')
@@ -243,4 +249,8 @@ if __name__ == '__main__':
         logger.setLevel(logging.INFO)
     logger.debug('args={0}'.format(args))
 
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print()
+        sys.exit(-1)
