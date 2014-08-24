@@ -169,10 +169,13 @@ def find_projects(dir_path, supported_vcss):
         logging.debug('found {0} project at {1}'.format(vcs, dir_path))
         projects.add(Project(dir_path, vcs))
     else:
-        for dir_item in os.listdir(dir_path):
-            full = os.path.join(dir_path, dir_item)
-            if os.path.isdir(full):
-                projects.update(find_projects(full, supported_vcss))
+        try:
+            for dir_item in os.listdir(dir_path):
+                full = os.path.join(dir_path, dir_item)
+                if os.path.isdir(full):
+                    projects.update(find_projects(full, supported_vcss))
+        except OSError:
+            pass
     return projects
 
 

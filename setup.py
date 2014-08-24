@@ -1,4 +1,4 @@
-import distutils
+import distutils.core
 #import codecs
 import re
 #import os
@@ -14,27 +14,28 @@ import sys
 #    raise RuntimeError("Unable to find version string.")
 
 def main():
-  try:
-    distutils.core.setup(
-      name='devsearch',
-      version='0.1.0',
-      description='A project search and goto system.',
-      author='Nic McDonald',
-      author_email='nicci02@hotmail.com',
-      license='None yet',
-      packages=['devsearch'],
-      scripts=['bin/devsearch'])
-  except:
-    return -1
+  distutils.core.setup(
+    name='devsearch',
+    version='0.1.0',
+    description='A project search and goto system.',
+    author='Nic McDonald',
+    author_email='nicci02@hotmail.com',
+    license='None yet',
+    packages=['devsearch'],
+    scripts=['bin/devsearch'])
 
   # check whether the user has a source to devsearch in their ~/.bashrc
   src_re = re.compile(r'source\s*devsearch')
   try:
     with open('~/.bashrc', 'r') as fd:
       text = fd.read()
-  if not src_re.search(text):
-    print(('Please add the following line to your ~/.bashrc file:\n'
-           '\talias dev=\'source devsearch\''))
+    if src_re.search(text):
+      return 0
+  except:
+    pass
+  print(('Please add the following line to your ~/.bashrc file:\n'
+         '\talias dev=\'source devsearch\''))
+
 
 
 if __name__ == '__main__':
