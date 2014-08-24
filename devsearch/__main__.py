@@ -13,7 +13,6 @@ import logging
 import os
 import re
 import sys
-#import termcolor
 
 logger = None
 args = None

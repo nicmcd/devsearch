@@ -1,37 +1,29 @@
-import codecs
+import distutils
+#import codecs
 import re
-import os
+#import os
 import sys
 
-try:
-  from setuptools import setup
-except:
-  print('please install setuptools:')
-  print('  pip install setuptools')
-  sys.exit(-1)
-
-def find_version(*file_paths):
-    version_file = codecs.open(os.path.join(os.path.abspath(
-        os.path.dirname(__file__)), *file_paths), 'r').read()
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+#def find_version(*file_paths):
+#    version_file = codecs.open(os.path.join(os.path.abspath(
+#        os.path.dirname(__file__)), *file_paths), 'r').read()
+#    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+#                              version_file, re.M)
+#    if version_match:
+#        return version_match.group(1)
+#    raise RuntimeError("Unable to find version string.")
 
 def main():
   try:
-    setup(
+    distutils.core.setup(
       name='devsearch',
-      version=find_version('devsearch', '__init__.py'),
+      version='0.1.0',
       description='A project search and goto system.',
       author='Nic McDonald',
       author_email='nicci02@hotmail.com',
       license='None yet',
       packages=['devsearch'],
-      scripts=['bin/devsearch'],
-      install_requires=['termcolor >= 1.1.0']
-    )
+      scripts=['bin/devsearch'])
   except:
     return -1
 
