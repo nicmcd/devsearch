@@ -139,15 +139,22 @@ def main():
         sys.exit(1)
 
     # get user's project selection
-    selection = input('select a project index: ')
+    selection = input('select a project: ')
     logger.debug('selection = {0}'.format(selection))
+    good = False
     try:
         selection = int(selection)
-    except:
-        print('invalid index: {0}'.format(selection))
-        sys.exit(-1)
-    if selection < 1 or selection > len(filtered):
-        print('invalid index: {0}'.format(selection))
+        good = selection >= 1 and selection <= len(filtered)
+    except ValueError:
+        # if specifier wasn't an integer, try matching on text
+        for index, project in enumerate(filtered):
+            if project.name == selection:
+                selection = index + 1
+                good = True
+                break
+    # display error message if needed
+    if not good:
+        print('invalid project name or index: {0}'.format(selection))
         sys.exit(-1)
 
     # use selected project
