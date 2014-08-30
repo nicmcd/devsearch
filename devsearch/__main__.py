@@ -1,14 +1,7 @@
-# Python 3 compatibility
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-try:
-    range = xrange
-    input = raw_input
-except NameError:
-    pass
+# this assumes Python3
 
 import argparse
-import ConfigParser
+import configparser
 import logging
 import os
 import re
@@ -44,7 +37,7 @@ def main():
         sys.exit(0)
 
     # parse the configuration file
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(args.conf)
 
     # get, expand, and check project root directories

@@ -1,7 +1,7 @@
 import distutils.core
 #import codecs
 import re
-#import os
+import os
 import sys
 
 #def find_version(*file_paths):
@@ -27,11 +27,11 @@ def main():
   # check whether the user has a source to devsearch in their ~/.bashrc
   src_re = re.compile(r'source\s*devsearch')
   try:
-    with open('~/.bashrc', 'r') as fd:
+    with open(os.path.expanduser('~/.bashrc'), 'r') as fd:
       text = fd.read()
     if src_re.search(text):
       return 0
-  except:
+  except IOError:
     pass
   print(('Please add the following line to your ~/.bashrc file:\n'
          '\talias dev=\'source devsearch\''))
