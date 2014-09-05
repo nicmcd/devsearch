@@ -1,11 +1,14 @@
-# this assumes Python3
-
 import argparse
 import configparser
+import getpass
 import logging
 import os
 import re
 import sys
+if sys.version_info < (3, 4):
+    raise "This requires Python 3.4 or later"
+
+kDevPrj = '/tmp/.devprj_{0}'.format(getpass.getuser())
 
 logger = None
 args = None
@@ -204,9 +207,9 @@ def use_project(project):
     if args.show or logger.isEnabledFor(logging.DEBUG):
         print(project)
     if not args.show:
-        with open(os.path.expanduser('~/.devprj'), 'w') as fd:
+        with open(os.path.expanduser(kDevPrj), 'w') as fd:
             fd.write('{0}\n'.format(project.path))
-        logger.debug('wrote path to ~/.devprj')
+        logger.debug('wrote path to {0}'.format(kDevPrj))
         return True
     else:
         return False

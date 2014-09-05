@@ -1,4 +1,4 @@
 #!/bin/bash
 if python3 -m devsearch $@; then
-    cd `cat ~/.devprj`
+    cd `cat /tmp/.devprj_${USER}`
 fi
