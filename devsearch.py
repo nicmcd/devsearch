@@ -57,9 +57,10 @@ def main():
     vcss = config.get('devsearch', 'vcs').split(os.pathsep)
     logger.debug('vcs={0}'.format(vcss))
     for vcs in vcss:
-        if not vcs in ['git', 'svn']:
+        if not vcs in kSupportedVcss:
             logger.error('\'{0}\' is not a supported version control system'
                          .format(vcs))
+            logger.error('options are: {0}'.format(','.join(kSupportedVcss)))
             sys.exit(-1)
 
     # compile regex
@@ -182,21 +183,46 @@ def find_projects(dir_path, supported_vcss):
     return projects
 
 
+kSupportedVcss = ['git', 'svn', 'hg', 'cvs']
 def vcs_type(path, supported):
-    is_git = ('git' in supported and
-              os.path.isdir(os.path.join(path, '.git')))
-    is_svn = ('svn' in supported and
-              os.path.isdir(os.path.join(path, '.svn')))
-    if is_git and is_svn:
+    is_cnt = 0
+    is_git = is_svn = is_hg = is_cvs = False
+
+    if ('git' in supported and
+        os.path.isdir(os.path.join(path, '.git'))):
+        is_cnt += 1
+        is_git = True
+    if ('svn' in supported and
+        os.path.isdir(os.path.join(path, '.svn'))):
+        is_cnt += 1
+        is_svn = True
+    if ('hg' in supported and
+        os.path.isdir(os.path.join(path, '.hg'))):
+        is_cnt += 1
+        is_hg = True
+    if ('cvs' in supported and
+        os.path.isdir(os.path.join(path, 'CVS'))):
+        is_cnt += 1
+        is_cvs = True
+
+    if is_cnt == 0:
+        return None
+    elif is_cnt == 1:
+        if is_git:
+            return 'git'
+        elif is_svn:
+            return 'svn'
+        elif is_hg:
+            return 'hg'
+        elif is_cvs:
+            return 'cvs'
+        else:
+            logger.error('devsearch programmer is an idiot')
+            sys.exit(-1)
+    else:
         logger.error('{0} appears to be multiple VCS types ?!?!'
                      .format(path))
         sys.exit(-1)
-    if is_git:
-        return 'git'
-    elif is_svn:
-        return 'svn'
-    else:
-        return None
 
 
 def full_expand(path):
