@@ -101,7 +101,7 @@ def main():
 
     # if no matches were found, exit
     if len(filtered) == 0:
-        print('no project matches found')
+        print('no projects found')
         sys.exit(-1)
 
     # if one match was found, use it
