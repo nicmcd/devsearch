@@ -65,7 +65,7 @@ def main():
 
   # compile regex
   try:
-    logger.debug('regex: {0}'.args.project)
+    logger.info('project regex: {0}'.format(args.project))
     regex = re.compile(args.project)
     args.project = regex
   except:
@@ -123,7 +123,7 @@ def main():
       max_name = len(project.name)
     if len(project.vcs) > max_vcs:
       max_vcs = len(project.vcs)
-  logger.debug('{0} {1} {2}'.format(max_index, max_name, max_vcs))
+  logger.debug('column widths: {0} {1} {2}'.format(max_index, max_name, max_vcs))
 
   # print the projects nicely
   for index, project in enumerate(filtered):
@@ -270,7 +270,7 @@ if __name__ == '__main__':
   parser.add_argument('-d', '--debug', action='store_true',
                       help='print lots of useless stuff to the console')
   parser.add_argument('project', default='', nargs='?',
-                      help='project search text (regex)')
+                      help='project search regex (quote with \'\')')
   try:
     args = parser.parse_args()
   except SystemExit:
