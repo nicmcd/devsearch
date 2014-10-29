@@ -5,6 +5,5 @@ if python3 -m devsearch $@; then
 	cd `cat /tmp/.devprj_${USER}`
     else
 	echo "no project found"
-	exit -1
     fi
 fi
