@@ -65,6 +65,7 @@ def main():
 
   # compile regex
   try:
+    logger.debug('regex: {0}'.args.project)
     regex = re.compile(args.project)
     args.project = regex
   except:
