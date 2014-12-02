@@ -1,8 +1,8 @@
 # devsearch
 
-This project implements a simple system for finding the finding I want to work on and changing my current directory to it.
+This project implements a simple system for finding the project I want to work on and changing my current directory to it.
 
-    me@tux:~/$ dev linux
+    Me@tux:~/$ dev linux
       loading '~/dev/github/torvalds/linux'
 
     me@tux:~/dev/github/torvalds/linux$
