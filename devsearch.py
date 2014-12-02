@@ -287,6 +287,6 @@ if __name__ == '__main__':
 
   try:
     sys.exit(main())
-  except KeyboardInterrupt:
+  except (KeyboardInterrupt, EOFError):
     print()
     sys.exit(-1)
