@@ -45,8 +45,9 @@ def main():
 
   # get, expand, and check project root directories
   roots = config.get('devsearch', 'root').split(os.pathsep)
+  # ignore empty values, expand
+  roots = [full_expand(root) for root in roots if root]
   logger.debug('root={0}'.format(roots))
-  roots = [full_expand(root) for root in roots]
   for root in roots:
     if not os.path.isdir(root):
       logger.error('\'{0}\' is not a valid directory'
@@ -55,6 +56,7 @@ def main():
 
   # get and check VCSs
   vcss = config.get('devsearch', 'vcs').split(os.pathsep)
+  vcss = [vcs for vcs in vcss if vcs]  # ignore empty values
   logger.debug('vcs={0}'.format(vcss))
   for vcs in vcss:
     if not vcs in kSupportedVcss:
