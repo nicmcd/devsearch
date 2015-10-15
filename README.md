@@ -33,11 +33,11 @@ or
 me@tux:~/$ dev google\|hplabs
 1 : paramgmt  [git] ~/projs/google/paramgmt
 2 : protobuf  [git] ~/projs/google/protobuf
-3 : cacti     [git] ~/projs/hpl/cacti
-4 : mcpat     [git] ~/projs/hpl/mcpat
-5 : supersim  [git] ~/projs/hpl/supersim
+3 : cacti     [git] ~/projs/hplabs/cacti
+4 : mcpat     [git] ~/projs/hplabs/mcpat
+5 : supersim  [git] ~/projs/hplabs/supersim
 selection: cacti
-me@tux:~/projs/hpl/cacti
+me@tux:~/projs/hplabs/cacti
 ```
 
 Searching is recursive:
