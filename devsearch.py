@@ -10,6 +10,8 @@ if sys.version_info < (3, 4):
 
 kDevPrj = '/tmp/.devprj_{0}'.format(getpass.getuser())
 
+real_home = os.path.expanduser(os.getenv('HOME'))
+
 logger = None
 args = None
 
@@ -65,15 +67,6 @@ def main():
       logger.error('options are: {0}'.format(','.join(kSupportedVcss)))
       sys.exit(-1)
 
-  # compile regex
-  try:
-    logger.debug('project regex: {0}'.format(args.project))
-    regex = re.compile(args.project)
-    args.project = regex
-  except:
-    logger.error('invalid regular expression: {0}'.format(args.project))
-    sys.exit(-1)
-
   # search for all projects
   projects = set()
   for root in roots:
@@ -86,93 +79,93 @@ def main():
   for idx, project in enumerate(projects):
     logger.debug('{0}: {1}'.format(idx+1, project))
 
-  # apply search function
-  logger.debug('Filtering:')
-  filtered = []
-  for project in projects:
-    if (args.project.search(project.path) or
-        args.project.search(project.vcs)):
-      filtered.append(project)
-      logger.debug('{0} passed'.format(project))
-    else:
-      logger.debug('{0} failed'.format(project))
+  # now loop forever until done
+  while True:
+    # compile regex
+    try:
+      logger.debug('project regex: {0}'.format(args.project))
+      args.project = re.compile(args.project)
+    except:
+      logger.error('invalid regular expression: {0}'.format(args.project))
+      sys.exit(-1)
 
-  # print all projects for debug mode
-  logger.debug('Filtered Projects:')
-  for index, project in enumerate(filtered):
-    logging.debug('{0}: {1}'.format(index + 1, project))
+    # apply search function
+    logger.debug('Filtering:')
+    filtered = []
+    for project in projects:
+      if (args.project.search(project.path) or
+          args.project.search(project.vcs)):
+        filtered.append(project)
+        logger.debug('{0} passed'.format(project))
+      else:
+        logger.debug('{0} failed'.format(project))
 
-  # if no matches were found, exit
-  if len(filtered) == 0:
-    print('no projects found')
-    sys.exit(-1)
-
-  # if one match was found, use it
-  if len(filtered) == 1:
-    used = use_project(filtered[0])
-    sys.exit(0 if used else 1)
-
-  # multiple matches were found
-  # find widths in order to make nice columns
-  max_index = 0
-  max_name = 0
-  max_vcs = 0
-  for index, project in enumerate(filtered):
-    index_str = str(index + 1)
-    if len(index_str) > max_index:
-      max_index = len(index_str)
-    if len(project.name) > max_name:
-      max_name = len(project.name)
-    if len(project.vcs) > max_vcs:
-      max_vcs = len(project.vcs)
-  logger.debug('column widths: {0} {1} {2}'.format(max_index, max_name, max_vcs))
-
-  # print the projects nicely
-  for index, project in enumerate(filtered):
-    index_str = str(index + 1)
-    print('{0}{1} : '
-          .format(index_str, ' ' * (max_index - len(index_str))),
-          end='')
-    print('{0}{1} '
-          .format(project.name, ' ' * (max_name - len(project.name))),
-          end='')
-    print('[{0}]{1} '
-          .format(project.vcs, ' ' * (max_vcs - len(project.vcs))),
-          end='')
-    print('{0}'.format(project.path))
-
-  # if user only wants to view projects, exit now
-  if args.show:
-    sys.exit(1)
-
-  # get user's project selection
-  selection = input('select a project: ')
-  logger.debug('selection = {0}'.format(selection))
-  good = False
-  try:
-    selection_index = int(selection)
-    good = selection_index >= 1 and selection_index <= len(filtered)
-    if good:
-      selection = selection_index
-  except ValueError:
-    pass
-
-  # if specifier wasn't a valid index, try matching on project name
-  if not good:
+    # print all projects for debug mode
+    logger.debug('Filtered Projects:')
     for index, project in enumerate(filtered):
-      if project.name == selection:
-        selection = index + 1
-        good = True
-        break
+      logging.debug('{0}: {1}'.format(index + 1, project))
 
-  # display error message if needed
-  if not good:
-    print('invalid project name or index: {0}'.format(selection))
-    sys.exit(-1)
+    # if no matches were found, exit
+    if len(filtered) == 0:
+      print('no projects found')
+      sys.exit(-1)
 
-  # use selected project
-  used = use_project(filtered[selection - 1])
-  sys.exit(0 if used else 1)
+    # if one match was found, use it
+    if len(filtered) == 1:
+      used = use_project(filtered[0])
+      sys.exit(0 if used else 1)
+
+    # multiple matches were found
+    # find widths in order to make nice columns
+    max_index = 0
+    max_name = 0
+    max_vcs = 0
+    for index, project in enumerate(filtered):
+      index_str = str(index + 1)
+      if len(index_str) > max_index:
+        max_index = len(index_str)
+      if len(project.name) > max_name:
+        max_name = len(project.name)
+      if len(project.vcs) > max_vcs:
+        max_vcs = len(project.vcs)
+    logger.debug('column widths: {0} {1} {2}'
+                 .format(max_index, max_name, max_vcs))
+
+    # make a replacement policy for home dirs
+    real_home = os.path.expanduser(os.getenv('HOME'))
+    short_home = '~'
+
+    # print the projects nicely
+    for index, project in enumerate(filtered):
+      index_str = str(index + 1)
+      print('{0}{1} : '
+            .format(index_str, ' ' * (max_index - len(index_str))),
+            end='')
+      print('{0}{1} '
+            .format(project.name, ' ' * (max_name - len(project.name))),
+            end='')
+      print('[{0}]{1} '
+            .format(project.vcs, ' ' * (max_vcs - len(project.vcs))),
+            end='')
+      print(project.path.replace(real_home, '~'))
+
+    # try to interpret the project selection as an integer
+    selection = input('select a project: ')
+    logger.debug('selection = {0}'.format(selection))
+    good = False
+    try:
+      selection_index = int(selection)
+      good = selection_index >= 1 and selection_index <= len(filtered)
+      if good:
+        selection = selection_index
+    except ValueError:
+      pass
+    if good:
+      used = use_project(filtered[selection - 1])
+      sys.exit(0 if used else 1)
+
+    # specifier wasn't a valid index, consider it a new regex
+    args.project = selection
 
 
 def find_projects(dir_path, supported_vcss):
@@ -266,13 +259,13 @@ if __name__ == '__main__':
                       help='show project(s) but don\'t change directory')
   parser.add_argument('-l', '--last', action='store_true',
                       help='loads the last project used')
-  parser.add_argument('-c', '--conf', default='~/.devconf',
+  parser.add_argument('-c', '--conf', default='~/.devsearchrc',
                       type=check_conf_file,
                       help='configuration file to use')
   parser.add_argument('-d', '--debug', action='store_true',
                       help='print lots of useless stuff to the console')
   parser.add_argument('project', default='', nargs='?',
-                      help='project search regex (quote with \'\')')
+                      help='project search regex')
   try:
     args = parser.parse_args()
   except SystemExit:
