@@ -176,7 +176,7 @@ def main():
       print(project.path.replace(real_home, '~'))
 
     # try to interpret the project selection as an integer
-    selection = input('select a project: ')
+    selection = input('selection: ')
     logger.debug('selection = {0}'.format(selection))
     good = False
     try:
