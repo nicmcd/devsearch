@@ -192,6 +192,8 @@ def main():
 
     # specifier wasn't a valid index, consider it a new regex
     args.project = selection
+    projects = list(filtered)
+    projects.sort()
 
 
 def find_projects(dir_path, supported_vcss):
