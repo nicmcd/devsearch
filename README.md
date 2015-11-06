@@ -98,6 +98,6 @@ vcs = git:svn:hg:cvs
 ## Uninstallation
 The following command will uninstall `devsearch`:
 ```bash
-sudo pip3 uninstall paramgmt
+sudo pip3 uninstall devsearch
 ```
 
