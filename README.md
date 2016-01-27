@@ -85,7 +85,7 @@ python3 setup.py install --user
 
 ## Configuration
 `devsearch` is configured using an RC file.
-The RC file specifies root directories in the file system that will be search for projects.
+The RC file specifies root directories in the file system that will be searched for projects.
 The RC file specifies which version control systems will be considered valid.
 git, svn, mercurial(hg), and cvs are supported.
 ```bash
