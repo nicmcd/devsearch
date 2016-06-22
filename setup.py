@@ -6,11 +6,11 @@ import sys
 def main():
   distutils.core.setup(
     name='devsearch',
-    version='0.2.0',
+    version='0.3.0',
     description='A project search and goto system.',
     author='Nic McDonald',
     author_email='nicci02@hotmail.com',
-    license='None yet',
+    license='BSD 2 Clause',
     py_modules=['devsearch'],
     scripts=['bin/devsearch'])
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2013-2015, Nic McDonald
+Copyright (c) 2013-2016, Nic McDonald
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -31,12 +31,16 @@ import logging
 import os
 import re
 import sys
+import subprocess
+import termcolor
+
 if sys.version_info < (3, 4):
   raise "This requires Python 3.4 or later"
 
 kDevPrj = '/tmp/.devprj_{0}'.format(getpass.getuser())
 
-real_home = os.path.expanduser(os.getenv('HOME'))
+kRealHome = os.path.expanduser(os.getenv('HOME'))
+kShortHome = '~'
 
 logger = None
 args = None
@@ -49,22 +53,27 @@ class Project(object):
     if index < 0:
       raise Exception('No separator?')
     self.name = fullpath[index+1:]
-    self.path = fullpath
+    self.realpath = fullpath
+    self.shortpath = fullpath.replace(kRealHome, kShortHome)
     self.vcs = vcs
+    self.vcs_color = None
+    if args.status:
+      self.vcs_color = project_status(fullpath, vcs)
+    self.status = None
 
   def __lt__(self, other):
     if self.name != other.name:
       return self.name < other.name
     else:
-      return self.path < other.path
+      return self.realpath < other.realpath
 
   def __str__(self):
-    return '{0} [{1}] {2}'.format(self.name, self.vcs, self.path)
+    return '{0} [{1}] {2}'.format(self.name, self.vcs, self.shortpath)
 
 
 def main():
   # if user wants the last one, exit now
-  if args.last:
+  if args.previous:
     sys.exit(0)
 
   # parse the configuration file
@@ -119,7 +128,7 @@ def main():
     logger.debug('Filtering:')
     filtered = []
     for project in projects:
-      if (args.project.search(project.path) or
+      if (args.project.search(project.realpath) or
           args.project.search(project.vcs)):
         filtered.append(project)
         logger.debug('{0} passed'.format(project))
@@ -129,7 +138,7 @@ def main():
     # print all projects for debug mode
     logger.debug('Filtered Projects:')
     for index, project in enumerate(filtered):
-      logging.debug('{0}: {1}'.format(index + 1, project))
+      logger.debug('{0}: {1}'.format(index + 1, project))
 
     # if no matches were found, exit
     if len(filtered) == 0:
@@ -146,6 +155,7 @@ def main():
     max_index = 0
     max_name = 0
     max_vcs = 0
+    max_path = 0
     for index, project in enumerate(filtered):
       index_str = str(index + 1)
       if len(index_str) > max_index:
@@ -154,26 +164,44 @@ def main():
         max_name = len(project.name)
       if len(project.vcs) > max_vcs:
         max_vcs = len(project.vcs)
-    logger.debug('column widths: {0} {1} {2}'
-                 .format(max_index, max_name, max_vcs))
-
-    # make a replacement policy for home dirs
-    real_home = os.path.expanduser(os.getenv('HOME'))
-    short_home = '~'
+      if len(project.shortpath) > max_path:
+        max_path = len(project.shortpath)
+    logger.debug('column widths: {0} {1} {2} {3}'
+                 .format(max_index, max_name, max_vcs, max_path))
 
     # print the projects nicely
     for index, project in enumerate(filtered):
+      # print the project index
       index_str = str(index + 1)
       print('{0}{1} : '
             .format(index_str, ' ' * (max_index - len(index_str))),
             end='')
+
+      # print the project name
       print('{0}{1} '
             .format(project.name, ' ' * (max_name - len(project.name))),
             end='')
+
+      # print the project VCS type (optionally show status via color)
+      vcs = project.vcs
+      if project.vcs_color:
+        vcs = termcolor.colored(vcs, project.vcs_color, attrs=['bold'])
       print('[{0}]{1} '
-            .format(project.vcs, ' ' * (max_vcs - len(project.vcs))),
+            .format(vcs, ' ' * (max_vcs - len(project.vcs))),
             end='')
-      print(project.path.replace(real_home, '~'))
+
+      # print the short path version of the project path
+      print('{0}{1} '
+            .format(project.shortpath,
+                    ' ' * (max_path - len(project.shortpath))),
+            end='')
+
+      # FUTURE FEATURE - print the project status
+      if project.status:
+        print(project.status, end='')
+
+      # end the line
+      print()
 
     # try to interpret the project selection as an integer
     selection = input('selection: ')
@@ -200,7 +228,7 @@ def find_projects(dir_path, supported_vcss):
   projects = set()
   vcs = vcs_type(dir_path, supported_vcss)
   if vcs:
-    logging.debug('found {0} project at {1}'.format(vcs, dir_path))
+    logger.debug('found {0} project at {1}'.format(vcs, dir_path))
     projects.add(Project(dir_path, vcs))
   else:
     try:
@@ -255,16 +283,67 @@ def vcs_type(path, supported):
     sys.exit(-1)
 
 
+def tryit(cwd, cmd):
+  try:
+    subprocess.check_call(cmd, cwd=cwd, shell=True)
+    return True
+  except:
+    return False
+
+
+def project_status(path, vcs):
+  if vcs is not 'git':
+    return None
+
+  if not tryit(path, 'git diff-files --quiet'):
+    logger.debug('{0} is red'.format(path))
+    return 'red'
+  elif not tryit(path, 'git diff-index --quiet --cached HEAD'):
+    logger.debug('{0} is yellow'.format(path))
+    return 'yellow'
+  else:
+    logger.debug('{0} is green'.format(path))
+    return 'green'
+
+  """ FUTURE WORK - show status text
+  proc = subprocess.Popen('git status', cwd=path,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                          shell=True)
+  stdout, stderr = proc.communicate()
+  retcode = proc.returncode
+  if retcode != 0:
+    print('git status failed for {0}'.format(path))
+    sys.exit(-1)
+  stdout = stdout.decode('utf-8')
+
+  is_up_to_date = stdout.find('Your branch is up-to-date with') >= 0
+  is_ahead = stdout.find('Your branch is ahead of') >= 0
+  assert is_up_to_date or is_ahead
+  assert not (is_up_to_date and is_ahead)
+  has_untracked = stdout.find('Untracked files:') >= 0
+  needs_commit = stdout.find('Changes to be committed:') >= 0
+
+  if is_up_to_date:
+    status = 'UpToDate'
+  else:
+    status = 'Ahead'
+  if needs_commit:
+    status += '-NeedsCommit'
+  if has_untracked:
+    status += '-Untracked'
+  """
+
+
 def full_expand(path):
   return os.path.abspath(os.path.expanduser(path))
 
 
 def use_project(project):
-  if args.show or logger.isEnabledFor(logging.DEBUG):
+  if args.list or logger.isEnabledFor(logging.DEBUG):
     print(project)
-  if not args.show:
+  if not args.list:
     with open(os.path.expanduser(kDevPrj), 'w') as fd:
-      fd.write('{0}\n'.format(project.path))
+      fd.write('{0}\n'.format(project.realpath))
       logger.debug('wrote path to {0}'.format(kDevPrj))
     return True
   else:
@@ -283,10 +362,12 @@ def check_conf_file(val):
 if __name__ == '__main__':
   desc = 'Go to your development project via intuitive search'
   parser = argparse.ArgumentParser(prog='devsearch', description=desc)
-  parser.add_argument('-s', '--show', action='store_true',
-                      help='show project(s) but don\'t change directory')
-  parser.add_argument('-l', '--last', action='store_true',
-                      help='loads the last project used')
+  parser.add_argument('-s', '--status', action='store_true',
+                      help='show the status of the project (git only)')
+  parser.add_argument('-l', '--list', action='store_true',
+                      help='list project(s) but don\'t change directory')
+  parser.add_argument('-p', '--previous', action='store_true',
+                      help='loads the previous project used')
   parser.add_argument('-c', '--conf', default='~/.devsearchrc',
                       type=check_conf_file,
                       help='configuration file to use')
