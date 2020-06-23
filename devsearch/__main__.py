@@ -297,7 +297,7 @@ def tryit(cwd, cmd):
 
 
 def project_status(path, vcs):
-  if vcs is not 'git':
+  if vcs != 'git':
     return None
 
   if not tryit(path, 'git diff-files --quiet'):
