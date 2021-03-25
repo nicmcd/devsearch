@@ -56,22 +56,10 @@ setup(
     version=find_version('devsearch', '__init__.py'),
     description='A project search and goto system',
     author='Nic McDonald',
-    author_email='nicci02@hotmail.com',
+    author_email='n.mcdonald83@gmail.com',
     license='BSD',
     url='http://github.com/nicmcd/devsearch',
     packages=['devsearch'],
     scripts=['bin/devsearch'],
     install_requires=['termcolor >= 1.1.0']
     )
-
-# check whether the user has a source to devsearch in their ~/.bashrc
-src_re = re.compile(r'source\s*devsearch')
-try:
-  with open(os.path.expanduser('~/.bashrc'), 'r') as fd:
-    text = fd.read()
-  if src_re.search(text):
-    sys.exit(0)
-except IOError:
-  pass
-print(('Please add the following line to your ~/.bashrc file:\n'
-       '\talias dev=\'source devsearch\''))

@@ -63,23 +63,10 @@ The `dev` command shown above is an alias which calls `source devsearch`. Add th
 alias dev='source devsearch'
 ```
 
-Installation of the `devsearch` program is done with **one** of the following commands:
+Installation of the `devsearch` program is done with pip:
 
-Install globally from repo:
 ```bash
-sudo pip3 install git+https://github.com/nicmcd/devsearch.git
-```
-Install locally from repo
-```bash
-pip3 install --user git+https://github.com/nicmcd/devsearch.git
-```
-Install globally from source:
-```bash
-sudo python3 setup.py install
-```
-Install locally from source:
-```bash
-python3 setup.py install --user
+pip3 install devsearch
 ```
 
 
@@ -98,6 +85,5 @@ vcs = git:svn:hg:cvs
 ## Uninstallation
 The following command will uninstall `devsearch`:
 ```bash
-sudo pip3 uninstall devsearch
+pip3 uninstall devsearch
 ```
-
